@@ -6,7 +6,7 @@
 /* eslint-disable import/no-extraneous-dependencies, comma-dangle, no-console */
 /* exported fixedEncodeURIComponent fixedDecodeURIComponent isNumber fixNumber matches */
 /* exported _computedClass _mkArray _mkObArray notEmpty qs f2 dataToFile */
-/* global moment, diff_match_patch, numeric, _, whenReadyFn, diff_match_patch */
+/* global moment, diff_match_patch, numeric, _, whenReadyFn, diff_match_patch, screen */
 /* exported asUtility */
 
 // Meant to be used as a mixin, as per:
@@ -39,42 +39,6 @@ window.asUtility = function asu(/* options */) {
     return r;
   };
 
-  /*
-  whenReadyFn(
-    () => window._,
-    () => {
-      (function setup(_) {
-        function deepDiff(a, b, r) {
-          _.each(a, (v, k) => {
-            // already checked this or equal...
-            if (Object.prototype.hasOwnProperty.call(r, k) || b[k] === v) {
-              return;
-            }
-            // but what if it returns an empty object? still attach?
-            r[k] = _.isObject(v) ? _.diff(v, b[k]) : v;
-          });
-        }
-
-        // the function
-        _.mixin({
-          shallowDiff(a, b) {
-            return _.omit(a, (v, k) => b[k] === v);
-          },
-          diff(a, b) {
-            var r = {};
-            a = a || {};
-            b = b || {};
-            deepDiff(a, b, r);
-            deepDiff(b, a, r);
-            return r;
-          },
-        });
-        window.diff = _.diff;
-      })(_.noConflict ? _.noConflict() : _);
-    }
-  );
-*/
-
   this.f2 = function f2(f) {
     return Number.parseFloat(f).toFixed(2);
   };
@@ -89,7 +53,7 @@ window.asUtility = function asu(/* options */) {
     var byteArray = new Uint8Array(byteNumbers);
     return new File([byteArray], 'capture.png', {
       type: 'image/png',
-      lastModified: Date.now()
+      lastModified: Date.now(),
     });
   };
 
@@ -100,7 +64,7 @@ window.asUtility = function asu(/* options */) {
         var eq = kv.indexOf('=');
         return {
           name: unescape(kv.slice(0, eq)),
-          value: unescape(kv.slice(eq + 1))
+          value: unescape(kv.slice(eq + 1)),
         };
       });
       var nom = name;
@@ -121,14 +85,6 @@ window.asUtility = function asu(/* options */) {
       }, 5);
     }
   };
-  /*
-    whenReadyFn = function(fn, done) {
-      var self = this;
-      if (fn()) { done(); } else {
-        setTimeout(() => { whenReadyFn(fn, done); }, 5);
-      }
-    };
-  */
 
   this.fixedEncodeURIComponent = function feuc(str) {
     return encodeURIComponent(str)
@@ -224,7 +180,7 @@ window.asUtility = function asu(/* options */) {
         var eq = kv.indexOf('=');
         return {
           name: unescape(kv.slice(0, eq)),
-          value: unescape(kv.slice(eq + 1))
+          value: unescape(kv.slice(eq + 1)),
         };
       });
       var nom = name;
@@ -265,7 +221,7 @@ window.asUtility = function asu(/* options */) {
       return await fetch(url, options);
     } catch (err) {
       if (n === 1) throw err;
-      return await fetch_retry(url, options, n - 1);
+      return this.fetch_retry(url, options, n - 1);
     }
   };
 
@@ -275,17 +231,20 @@ window.asUtility = function asu(/* options */) {
       new CustomEvent(type, {
         detail,
         bubbles: true,
-        composed: true
-      })
+        composed: true,
+      }),
     );
   };
+  this.firebLater = function fireb(type, detail, time) {
+    setTimeout(() => this.fireb(type, detail), time || 1);
+  };
 
-  this.get = function(obj, key, def) {
+  this.get = function get(obj, key, def) {
     var ret = key.split('.').reduce((o, x) => (typeof o === 'undefined' || o === null ? def : o[x]), obj);
     return ret || def;
   };
 
-  this.has = function(obj, key) {
+  this.has = function has(obj, key) {
     return key.split('.').every(x => {
       if (typeof obj !== 'object' || obj === null || !(x in obj)) return false;
       obj = obj[x];
@@ -299,8 +258,8 @@ window.asUtility = function asu(/* options */) {
         new CustomEvent(type, {
           detail: result => resolve(result),
           bubbles: true,
-          composed: true
-        })
+          composed: true,
+        }),
       );
     });
   };
@@ -376,7 +335,7 @@ window.asUtility = function asu(/* options */) {
     unit: 'u',
     usr: 'U',
     video: 'v',
-    watch: 'w'
+    watch: 'w',
   };
   this.c2typeMap = {
     audio: 'audio',
@@ -416,7 +375,7 @@ window.asUtility = function asu(/* options */) {
     t: 'text',
     h: 'html',
     i: 'image',
-    v: 'video'
+    v: 'video',
   };
 
   this.type2c = function type2c(type) {
@@ -466,7 +425,7 @@ window.asUtility = function asu(/* options */) {
       return null;
     }
     id = `${id + enc(item.cmp_group)}/${enc(item.cmp_author)}/${enc(item.cmp_id)}/${enc(
-      item.cmp_branch
+      item.cmp_branch,
     )}/${item.cmp_ts}`;
     if (!keepgoing) {
       var check = /\/\//.test(id);
@@ -500,14 +459,15 @@ window.asUtility = function asu(/* options */) {
     try {
       const idp = path.split('/', 8);
       const il = idp.length;
+      const typ = this.c2type(idp[1]) || '';
       idd = {
-        cmp_type: dec(this.c2type(idp[1])),
+        cmp_type: dec(typ),
         cmp_group: il > 2 ? dec(idp[2]) : null,
         cmp_author: il > 3 ? dec(idp[3]) : null,
         cmp_id: il > 4 ? dec(idp[4]) : null,
         cmp_branch: il > 5 ? dec(idp[5]) : null,
         cmp_ts: il > 6 ? idp[6] : null,
-        cmp_misc: il > 7 ? dec(idp[7]) : null
+        cmp_misc: il > 7 ? dec(idp[7]) : null,
       };
     } catch (e) {
       if (this.debug) {
@@ -516,88 +476,6 @@ window.asUtility = function asu(/* options */) {
       throw new this.Exception('Invalid ID.', path);
     }
     return idd;
-  };
-
-  // Will get hash=#/sandbox/G/...
-  // Route, from app-location, has been urldecoded, not what we want.
-  this.routeParse = function routeParse(route, app) {
-    app.queryArgs = app.queryArgs || [];
-    if (!route || (!route.prefix && !route.path)) return;
-    var rcheck = `${route.prefix}${route.path}`;
-    if (rcheck.length) {
-      if (rcheck === app.lastCallRouteParse) return;
-      console.log(rcheck);
-      console.log(app.lastCallRouteParse);
-      app.lastCallRouteParse = rcheck;
-    }
-    if (route && route.path && route.path.startsWith('access_token')) {
-      app.page = 'sandbox';
-      app.path = '';
-      return;
-    }
-    var hash = window.location.hash;
-    if (!route) {
-      app.page = app.path = null;
-      return;
-    }
-    var pg = route.prefix && route.prefix.length ? route.prefix : route.path;
-    if (pg && pg.length) {
-      const split = pg.split('/');
-      let s = split.shift();
-      while (s === '' && !s.length) s = split.shift();
-      if (s && app.page !== s) app.page = s;
-      s = '';
-      // Similar to mkcid():
-      // var enc = this.urlencode;
-      app.path = null;
-      app.queryString = '';
-      app.queryArgs = [];
-      app.focusedAuth = '';
-      if (hash.startsWith('#')) {
-        hash = hash.slice(1);
-        if (hash.startsWith(`/${app.page}/`)) {
-          hash = hash.slice(1 + app.page.length);
-          if (hash.length > 1) {
-            var qs = hash.split('?');
-            app.path = qs[0];
-            app.queryString = qs.length > 1 ? qs[1] : '';
-            if (app.queryString) {
-              var qargs = app.queryString.split('&');
-              var args = {};
-              var earg;
-              qargs.forEach(arg => {
-                earg = arg.split('=');
-                if (earg.length === 1) {
-                  args.a = earg[0];
-                } else args[earg[0]] = earg[1];
-              });
-              app.queryArgs = args;
-              app.focusedAuth = args.a;
-              console.log(`app.queryArgs:`, args);
-            }
-            var idd = this.splitpath(hash);
-            console.log('Route contained cid:', app.path, idd);
-            // Proxy for mini auth token
-            if (idd.cmp_cid) {
-              app.authenticated = app.authorized = true;
-              app.user.profile = {email: 'anon@anon.com', email_verified: true};
-            }
-          }
-        }
-      }
-    } else {
-      app.page = app.path = null;
-    }
-    this.debug = true;
-    if (this.debug) {
-      console.log(`app.page:${app.page} app.path:${app.path}`);
-      /*
-        console.log(
-        `app.routeChanged:prefix:${route.prefix} path:${route.path} page:${this.page} routeData.page:${this
-        .routeData.page}`
-        );
-      */
-    }
   };
 
   this.requiredParam = function requiredParam(param) {
@@ -632,6 +510,7 @@ window.asUtility = function asu(/* options */) {
       if (Array.isArray(ret)) ret = ret[0];
     } catch (err) {
       console.warn(err);
+      console.warn(val);
     }
     return ret;
   };
@@ -652,26 +531,24 @@ window.asUtility = function asu(/* options */) {
     return Object.freeze(obj);
   };
 
-  this.one = { dpi: 96, dpcm: 96 / 2.54 };
+  this.one = {dpi: 96, dpcm: 96 / 2.54};
 
   this.ie = function ie() {
-    return Math.sqrt(screen.deviceXDPI * screen.deviceYDPI) / one.dpi;
+    return Math.sqrt(window.screen.deviceXDPI * window.screen.deviceYDPI) / this.one.dpi;
   };
 
   this.dppx = function dppx() {
     // devicePixelRatio: Webkit (Chrome/Android/Safari), Opera (Presto 2.8+), FF 18+
-    return typeof window === 'undefined' ? 0 : +window.devicePixelRatio || this.ie() ||
-      0;
+    return typeof window === 'undefined' ? 0 : +window.devicePixelRatio || this.ie() || 0;
   };
 
   this.dpcm = function dpcm() {
-    return dppx() * this.one.dpcm;
+    return this.dppx() * this.one.dpcm;
   };
 
   this.dpi = function dpi() {
-    return dppx() * this.one.dpi;
+    return this.dppx() * this.one.dpi;
   };
 
-  this.res = { 'dppx': this.dppx, 'dpi': this.dpi, 'dpcm': this.dpcm };
-
+  this.res = {dppx: this.dppx, dpi: this.dpi, dpcm: this.dpcm};
 };

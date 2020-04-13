@@ -1,5 +1,5 @@
 /**
-   @license Copyright (c) 2016-2018 Yebo, Inc.
+   @license Copyright (c) 2016-2020 Yebo, Inc.
    @prettier
 */
 /* eslint camelcase:0, maxcomplexity:0, unused:0, comma-dangle:0, ecmaVersion:6 */
@@ -56,7 +56,7 @@ export class Utility {
       unit: 'u',
       usr: 'U',
       video: 'v',
-      watch: 'w'
+      watch: 'w',
     };
     this.c2typeMap = {
       p: 'path',
@@ -95,7 +95,7 @@ export class Utility {
       t: 'text',
       h: 'html',
       i: 'image',
-      v: 'video'
+      v: 'video',
     };
   }
   deepDiff(a, b, r) {
@@ -123,42 +123,6 @@ export class Utility {
     return r;
   }
 
-  /*
-  whenReadyFn(
-    () => window._,
-    () => {
-      (function setup(_) {
-        function deepDiff(a, b, r) {
-          _.each(a, (v, k) => {
-            // already checked this or equal...
-            if (Object.prototype.hasOwnProperty.call(r, k) || b[k] === v) {
-              return;
-            }
-            // but what if it returns an empty object? still attach?
-            r[k] = _.isObject(v) ? _.diff(v, b[k]) : v;
-          });
-        }
-
-        // the function
-        _.mixin({
-          shallowDiff(a, b) {
-            return _.omit(a, (v, k) => b[k] === v);
-          },
-          diff(a, b) {
-            var r = {};
-            a = a || {};
-            b = b || {};
-            deepDiff(a, b, r);
-            deepDiff(b, a, r);
-            return r;
-          },
-        });
-        window.diff = _.diff;
-      })(_.noConflict ? _.noConflict() : _);
-    }
-  );
-*/
-
   f2(f) {
     return Number.parseFloat(f).toFixed(2);
   }
@@ -173,47 +137,9 @@ export class Utility {
     var byteArray = new Uint8Array(byteNumbers);
     return new File([byteArray], 'capture.png', {
       type: 'image/png',
-      lastModified: Date.now()
+      lastModified: Date.now(),
     });
   }
-
-  _parseCookie(name) {
-    try {
-      var pairs = document.cookie.split(/\s*;\s*/);
-      var map = pairs.map(kv => {
-        var eq = kv.indexOf('=');
-        return {
-          name: unescape(kv.slice(0, eq)),
-          value: unescape(kv.slice(eq + 1))
-        };
-      });
-      var nom = name;
-      return map.filter(kv => kv.name === nom)[0];
-    } catch (err) {
-      console.error(err);
-    }
-    return null;
-  }
-
-  whenReady(field, fn) {
-    var self = this;
-    if (self[field]) {
-      fn();
-    } else {
-      setTimeout(() => {
-        self.whenReady(field, fn);
-      }, 5);
-    }
-  }
-
-  /*
-    whenReadyFn = function(fn, done) {
-      var self = this;
-      if (fn()) { done(); } else {
-        setTimeout(() => { whenReadyFn(fn, done); }, 5);
-      }
-    };
-  */
 
   fixedEncodeURIComponent(str) {
     return encodeURIComponent(str)
@@ -223,14 +149,6 @@ export class Utility {
 
   fixedDecodeURIComponent(str) {
     return decodeURIComponent(str.replace(/[+]/g, '%20'));
-  }
-
-  isNumber(n) {
-    return !Number.isNaN(parseFloat(n)) && Number.isFinite(n);
-  }
-
-  fixNumber(n, m) {
-    return !this.isNumber(n) ? m : n;
   }
 
   fixStr(n, m) {
@@ -257,10 +175,6 @@ export class Utility {
       if (e instanceof TypeError) return null;
       throw e;
     }
-  }
-
-  timestampNow() {
-    return moment.utc().format('YYYYMMDDTHHmmss.SSS');
   }
 
   urlencode(str) {
@@ -312,7 +226,7 @@ export class Utility {
         var eq = kv.indexOf('=');
         return {
           name: unescape(kv.slice(0, eq)),
-          value: unescape(kv.slice(eq + 1))
+          value: unescape(kv.slice(eq + 1)),
         };
       });
       var nom = name;
@@ -364,8 +278,8 @@ export class Utility {
       new CustomEvent(type, {
         detail,
         bubbles: true,
-        composed: true
-      })
+        composed: true,
+      }),
     );
   }
 
@@ -388,8 +302,8 @@ export class Utility {
         new CustomEvent(type, {
           detail: result => resolve(result),
           bubbles: true,
-          composed: true
-        })
+          composed: true,
+        }),
       );
     });
   }
@@ -407,24 +321,18 @@ export class Utility {
     return !this.isNumber(n) ? m : n;
   }
 
-  fixStr(n, m) {
-    if (n === undefined || n.length < 1) {
-      return m;
-    }
-    return n;
-  }
-
   timestampNow() {
     return moment.utc().format('YYYYMMDDTHHmmss.SSS');
   }
 
-  getId() {
+  genId() {
     return moment.utc().format('mmss');
   }
 
   Exception(msg, data) {
     this.message = msg;
     this.data = data;
+    return this;
   }
 
   type2c(type) {
@@ -443,27 +351,6 @@ export class Utility {
     return c;
   }
 
-  urlencode(str) {
-    return encodeURIComponent(str)
-      .replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16)}`)
-      .replace(/%20/g, '+');
-  }
-
-  urldecode(str) {
-    var ret;
-    try {
-      ret = decodeURIComponent(str.replace(/[+]/g, '%20'));
-    } catch (err) {
-      console.error(err);
-    }
-    return ret;
-  }
-
-  // Encode % as %25
-  parenc(str) {
-    return str.replace(/%/g, '%25');
-  }
-
   mkcid(item, keepgoing) {
     let id = '/e404/';
     var enc = this.urlencode;
@@ -474,7 +361,7 @@ export class Utility {
       return null;
     }
     id = `${id + enc(item.cmp_group)}/${enc(item.cmp_author)}/${enc(item.cmp_id)}/${enc(
-      item.cmp_branch
+      item.cmp_branch,
     )}/${item.cmp_ts}`;
     if (!keepgoing) {
       var check = /\/\//.test(id);
@@ -515,7 +402,7 @@ export class Utility {
         cmp_id: il > 4 ? dec(idp[4]) : null,
         cmp_branch: il > 5 ? dec(idp[5]) : null,
         cmp_ts: il > 6 ? idp[6] : null,
-        cmp_misc: il > 7 ? dec(idp[7]) : null
+        cmp_misc: il > 7 ? dec(idp[7]) : null,
       };
     } catch (e) {
       if (this.debug) {
@@ -524,88 +411,6 @@ export class Utility {
       throw new this.Exception('Invalid ID.', path);
     }
     return idd;
-  }
-
-  // Will get hash=#/sandbox/G/...
-  // Route, from app-location, has been urldecoded, not what we want.
-  routeParse(route, app) {
-    app.queryArgs = app.queryArgs || [];
-    if (!route || (!route.prefix && !route.path)) return;
-    var rcheck = `${route.prefix}${route.path}`;
-    if (rcheck.length) {
-      if (rcheck === app.lastCallRouteParse) return;
-      console.log(rcheck);
-      console.log(app.lastCallRouteParse);
-      app.lastCallRouteParse = rcheck;
-    }
-    if (route && route.path && route.path.startsWith('access_token')) {
-      app.page = 'sandbox';
-      app.path = '';
-      return;
-    }
-    var hash = window.location.hash;
-    if (!route) {
-      app.page = app.path = null;
-      return;
-    }
-    var pg = route.prefix && route.prefix.length ? route.prefix : route.path;
-    if (pg && pg.length) {
-      const split = pg.split('/');
-      let s = split.shift();
-      while (s === '' && !s.length) s = split.shift();
-      if (s && app.page !== s) app.page = s;
-      s = '';
-      // Similar to mkcid():
-      // var enc = this.urlencode;
-      app.path = null;
-      app.queryString = '';
-      app.queryArgs = [];
-      app.focusedAuth = '';
-      if (hash.startsWith('#')) {
-        hash = hash.slice(1);
-        if (hash.startsWith(`/${app.page}/`)) {
-          hash = hash.slice(1 + app.page.length);
-          if (hash.length > 1) {
-            var qs = hash.split('?');
-            app.path = qs[0];
-            app.queryString = qs.length > 1 ? qs[1] : '';
-            if (app.queryString) {
-              var qargs = app.queryString.split('&');
-              var args = {};
-              var earg;
-              qargs.forEach(arg => {
-                earg = arg.split('=');
-                if (earg.length === 1) {
-                  args.a = earg[0];
-                } else args[earg[0]] = earg[1];
-              });
-              app.queryArgs = args;
-              app.focusedAuth = args.a;
-              console.log(`app.queryArgs:`, args);
-            }
-            var idd = this.splitpath(hash);
-            console.log('Route contained cid:', app.path, idd);
-            // Proxy for mini auth token
-            if (idd.cmp_cid) {
-              app.authenticated = app.authorized = true;
-              app.user.profile = {email: 'anon@anon.com', email_verified: true};
-            }
-          }
-        }
-      }
-    } else {
-      app.page = app.path = null;
-    }
-    this.debug = true;
-    if (this.debug) {
-      console.log(`app.page:${app.page} app.path:${app.path}`);
-      /*
-        console.log(
-        `app.routeChanged:prefix:${route.prefix} path:${route.path} page:${this.page} routeData.page:${this
-        .routeData.page}`
-        );
-      */
-    }
   }
 
   requiredParam(param) {
@@ -640,6 +445,7 @@ export class Utility {
       if (Array.isArray(ret)) ret = ret[0];
     } catch (err) {
       console.warn(err);
+      console.warn(val);
     }
     return ret;
   }
@@ -650,8 +456,7 @@ export class Utility {
 
   dppx() {
     // devicePixelRatio: Webkit (Chrome/Android/Safari), Opera (Presto 2.8+), FF 18+
-    return typeof window === 'undefined' ? 0 : +window.devicePixelRatio || this.ie() ||
-      0;
+    return typeof window === 'undefined' ? 0 : +window.devicePixelRatio || this.ie() || 0;
   }
 
   dpcm() {
@@ -663,8 +468,7 @@ export class Utility {
   }
 
   resInit() {
-    this.one = { dpi: 96, dpcm: 96 / 2.54 };
-    this.res = { 'dppx': this.dppx, 'dpi': this.dpi, 'dpcm': this.dpcm };
+    this.one = {dpi: 96, dpcm: 96 / 2.54};
+    this.res = {dppx: this.dppx, dpi: this.dpi, dpcm: this.dpcm};
   }
-
 }
